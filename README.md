@@ -4,6 +4,8 @@
 
 To install:
 
+The C sources must be compiled first.
+
 Linux:
 
 ```bash
