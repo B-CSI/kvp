@@ -23,7 +23,9 @@ void wipe_idx_buffers (int *idx, int nb) {
 }
 
 int captures (t_KVPicks *grouped, t_Singlepick **refined, int *npicks, double *gaps, bool **mask) {
-    
+    /* An unused Python version of this procedure (see callers.py) fully describes this algorithm */
+	/* This algorithm removes a big bottleneck caused by the former, extremely naive one */
+	
     int nb_max=grouped->nbands_max;
     
     t_Singlepick **picks=grouped->picks;
