@@ -4,15 +4,14 @@ KVP: Multiscale kurtosis phase picking
 
 Kurtosis-Value-Picker (**KVP**) is a **seismic phase picker based on kurtosis** 
 that produces picks with spectral information. It **filters input traces using 
-a family of Ricker wavelet frames** and the wavelet transform (FIR filter). 
-This **achieves narrowband resolution and optimal time resolution** thanks to 
-the wavelet of choice. The full algorithm is described in detail by the 
-corresponding publication.
+a family of Ricker wavelet frames** to apply the wavelet transform (FIR filter),  
+**achieving narrowband picking resolution**. The full algorithm is described 
+in detail by the corresponding publication.
 
 .. admonition:: Citation
     :class: important
     
-    Citation goes here
+    https://doi.org/10.1093/gji/ggaf136
 
 .. currentmodule:: kvp.api
 
@@ -32,19 +31,21 @@ function (CF) traces**. This should be done carefully, as running the algorithm
 iterativelly over many data may quickly fill all available memory on your 
 workstation.
 
-.. admonition:: Optimizations
+.. admonition:: Memory optimizations
     :class: note
     
     The package tries to be smart about memory usage. :py:class:`KVP` instances 
-    will try to reuse their already allocated memory by a previous run and will 
-    only reallocate if necessary. This is all handled internally.
+    will try to reuse their already allocated memory during a previous run and 
+    will only reallocate if necessary. This is all handled internally. In 
+    particular, the performance boost when all inputs have the exact same 
+    length (e.g. DAS) is massive.
 
 '''
 
 
 __version__ = '0.1.0'
 
-DOI = ''
+DOI = '10.1093/gji/ggaf136'
 
 BIBTEX = ''
 

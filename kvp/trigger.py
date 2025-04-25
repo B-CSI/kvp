@@ -226,3 +226,4 @@ class KurtosisJumps:
         self._STATS_['trig']['time_total'] += trig_time
         
         return trig_items
+   

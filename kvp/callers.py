@@ -400,7 +400,6 @@ def capture_py(pick_ptrs, idx_bands, nbands, refined, npicks, gaps):
         
         # Reference band level, maybe set grouped to False so the grouping procedure can be called again
         # Or just make a boolean array on the spot for each band, that would have made more sense
-        # The C version uses a boolean array
         # Wipe the auxiliary index array so the next band can properly look for captures, sad times when I forgot this at first
         idx_aux[:] = 0
     

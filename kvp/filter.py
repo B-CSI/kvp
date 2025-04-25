@@ -193,3 +193,4 @@ class MexhatFilters:
                   for data, fs, fc in zip(tr_data, tr_fs, wf_fc))
         
         return tuple(output)
+    

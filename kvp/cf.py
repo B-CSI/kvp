@@ -169,4 +169,5 @@ class KurtosisFunctions:
         output = ((data, fs, wlen/fs)
                   for data, fs, wlen in zip(cf_data, cf_fs, cf_wlen))
         
-        return tuple(output)   
+        return tuple(output)
+        

@@ -28,7 +28,7 @@ class KVP:
     **run the algorithm with the stored parameters**, as long as the input data 
     is suitable (i.e. sufficient sampling rate and number of samples). The most 
     basic **input requires a data array, its sampling rate and an optional 
-    POSIX timestamp** to be used as reference, i.e. the starttime of the data. 
+    POSIX timestamp** to be used as reference, i.e. the start time of the data. 
     ObsPy :py:class:`Trace` instances can be simply be passed to the 
     :py:meth:`obspy` method, which will handle everything.
     
@@ -37,8 +37,8 @@ class KVP:
     .. admonition:: Parameter restrictions
         :class: warning
         
-        The following restrictions may apply when setting the parameters or 
-        trying to run the algorithm:
+        The following restrictions apply when setting the parameters or trying 
+        to run the algorithm:
             
             * Jump window length cannot be longer than CF window length, and 
               typically should be much smaller (e.g. 2 cycles vs 90 cycles).
@@ -209,11 +209,10 @@ class KVP:
     def ALLOC_CAPTURE(self, N_max):
         '''Explicitly allocate memory for the capture algorithm, which avoids 
         continuous reallocation during successive runs if the maximum number of 
-        possible picks grows after each run. A large enough pre-allocation can 
+        possible picks grows after each run. A large enough pre-allocation will 
         improve performance, if it lasts.
         
-        The default value should be enough unless there is a really funky 
-        input.
+        The default value should be enough for any reasonable input data.
         
         :param N_max: Maximum number of expected possible grouped picks
         :type N_max: :py:class:`int`
@@ -304,7 +303,8 @@ class KVPOutput:
         
         return strout
     
-    def _write_to_buffer(self, buff_obj, posix=True, **kwargs):
+    def _write_to_buffer(self, buff_obj, posix=True, isoformat=True,
+                                                                     **kwargs):
         '''Write to a file-like buffer (e.g. file object, StringIO).
         '''
         
@@ -315,13 +315,16 @@ class KVPOutput:
         
         for pick in self.picks:
             
-            ons = pick.onset(**kwargs)
+            ons = pick.onset(posix=posix, **kwargs)
+            nb = pick.nb
+            fl = pick.centralfreqs[0]
+            fh = pick.centralfreqs[-1]
             
-            if posix:
+            if posix and isoformat:
                 ons = datetime.fromtimestamp(ons, UTC)
                 ons = ons.strftime(TSFORMAT)
             
-            buff_obj.write(f'{rec_id}\t{ons}\n')
+            buff_obj.write(f'{rec_id}\t{ons}\t{nb}\t{fl:.2f}\t{fh:.2f}\n')
         
         pos = buff_obj.seek(0, SEEK_END) - 1
         buff_obj.truncate(pos) # Remove last newline
@@ -329,11 +332,18 @@ class KVPOutput:
     
     def append_to_file(self, fout, **kwargs):
         '''Append picks to an open file, i.e. an object returned by the 
-        :py:func:`open` function.
+        :py:func:`open` function. Output columns are :code:`rec_id`, onset 
+        time, number of bands, lowest band, and highest band, respectively.
         
         :param fout: Open file object
         :type fout: file object
-        :kwargs: Keyword arguments for the onset picking method
+        :param posix: Flag to get onsets as POSIX time, default is 
+            :code:`True`. If not, get time in seconds from input data start
+        :type posix: :py:class:`bool`, optional
+        :param isoformat: Flag to write POSIX times as ISO datetime strings or 
+            :py:class:`float` numbers, default is :code:`True`. Only relevant 
+            if :code:`posix` is set to :code:`True`
+        :type isoformat: :py:class:`bool`, optional
         '''
         
         self._write_to_buffer(fout, **kwargs)
@@ -373,4 +383,6 @@ def centralfreqs(freqmax, octaves, voices):
     
     fc = tuple(round(freqmax/2**(s/voices),2) for s in range(octaves*voices))
     
-    return fc   
+    return fc
+    
+    
