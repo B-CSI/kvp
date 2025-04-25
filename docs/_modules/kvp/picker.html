@@ -1,0 +1,441 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kvp.picker &mdash; Kurtosis-Value-Picker  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #28b8d5" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Kurtosis-Value-Picker
+              <img src="../../_static/logo_BCSI.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Description</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user.html">User classes and functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../results.html">Picking results</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../ot_event.html">DAS earthquake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../safe_signal.html">OBS signal</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/B-CSI/kvp">Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #28b8d5" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Kurtosis-Value-Picker</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">kvp.picker</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for kvp.picker</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Refining and grouping of picks based on S. Ventosa MATLAB adventures.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">gc</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">time</span><span class="w"> </span><span class="kn">import</span> <span class="n">time</span>
+
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">kvp.callers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_captures</span><span class="p">,</span> <span class="n">update_captures</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kvp.lib</span><span class="w"> </span><span class="kn">import</span> <span class="n">t_Singlepick</span>
+
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">KurtosisPicker</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Refine and group a set of picks.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nbands</span> <span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_PARAM_</span> <span class="o">=</span> \
+            <span class="p">{</span>
+            <span class="s1">&#39;nbands&#39;</span> <span class="p">:</span> <span class="n">nbands</span><span class="p">,</span>
+            <span class="p">}</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ITEMS_</span> <span class="o">=</span> <span class="p">{}</span>
+        
+        <span class="n">refine</span> <span class="o">=</span> \
+            <span class="p">{</span>
+            <span class="s1">&#39;n_processed&#39;</span> <span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s1">&#39;n_reset&#39;</span> <span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="c1"># This has not allocated memory</span>
+            <span class="s1">&#39;time_total&#39;</span> <span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="p">}</span>
+        
+        <span class="n">capture</span> <span class="o">=</span> \
+            <span class="p">{</span>
+            <span class="s1">&#39;n_processed&#39;</span> <span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s1">&#39;n_reset&#39;</span> <span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s1">&#39;time_total&#39;</span> <span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="p">}</span>
+        
+        <span class="n">select</span> <span class="o">=</span> \
+            <span class="p">{</span>
+            <span class="s1">&#39;n_processed&#39;</span> <span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s1">&#39;n_reset&#39;</span> <span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="c1"># Same</span>
+            <span class="s1">&#39;time_total&#39;</span> <span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="p">}</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_STATS_</span> <span class="o">=</span> \
+            <span class="p">{</span>
+            <span class="s1">&#39;refine&#39;</span> <span class="p">:</span> <span class="n">refine</span><span class="p">,</span>
+            <span class="s1">&#39;capture&#39;</span> <span class="p">:</span> <span class="n">capture</span><span class="p">,</span>
+            <span class="s1">&#39;select&#39;</span> <span class="p">:</span> <span class="n">select</span><span class="p">,</span>
+            <span class="p">}</span>
+    
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_refine_singlepicks</span><span class="p">(</span><span class="n">trigs</span><span class="p">,</span> <span class="n">wlen</span><span class="p">,</span> <span class="n">cf</span><span class="p">,</span> <span class="n">cf_wlen</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">posix_ref</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Internal.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="n">picks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">trigs</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">t_Singlepick</span><span class="p">)</span>
+        <span class="n">half</span> <span class="o">=</span> <span class="n">wlen</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">delay</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">cf_wlen</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+        
+        <span class="c1"># This can be done in C with a bit of care with triggers near the end of the CFs</span>
+        <span class="c1"># Doubt it makes much of a difference, the captures should be a way bigger bottleneck</span>
+        <span class="c1"># They are, by a large margin</span>
+        
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">picks</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
+            
+            <span class="n">idx_ref</span> <span class="o">=</span> <span class="n">trigs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">half</span>
+            
+            <span class="c1"># Discard this pick completely</span>
+            <span class="k">if</span> <span class="n">idx_ref</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">picks</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="n">picks</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">7</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">continue</span>
+             
+            <span class="n">segment</span> <span class="o">=</span> <span class="n">cf</span><span class="p">[</span><span class="n">idx_ref</span><span class="p">:</span><span class="n">idx_ref</span><span class="o">+</span><span class="n">wlen</span><span class="p">]</span>
+            
+            <span class="n">idx_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">segment</span><span class="p">)</span>
+            <span class="n">idx_ons</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">segment</span><span class="p">)</span>
+            <span class="n">t_ons</span> <span class="o">=</span> <span class="p">(</span><span class="n">idx_ref</span><span class="o">+</span><span class="n">idx_ons</span><span class="o">+</span><span class="n">delay</span><span class="p">)</span> <span class="o">/</span> <span class="n">fs</span>
+            <span class="n">dt_jump</span> <span class="o">=</span> <span class="p">(</span><span class="n">idx_max</span><span class="o">-</span><span class="n">idx_ons</span><span class="p">)</span> <span class="o">/</span> <span class="n">fs</span>
+            <span class="n">kv_jump</span> <span class="o">=</span> <span class="n">segment</span><span class="p">[</span><span class="n">idx_max</span><span class="p">]</span> <span class="o">-</span> <span class="n">segment</span><span class="p">[</span><span class="n">idx_ons</span><span class="p">]</span>
+            
+            <span class="n">picks</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;idx_ref&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx_ref</span>
+            <span class="n">picks</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;idx_max&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx_max</span>
+            <span class="n">picks</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;idx_ons&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx_ons</span>
+            <span class="n">picks</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;t_ons&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">t_ons</span>
+            <span class="n">picks</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;posix_ons&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">posix_ref</span> <span class="o">+</span> <span class="n">t_ons</span>
+            <span class="n">picks</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;dt_jump&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dt_jump</span>
+            <span class="n">picks</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;kv_jump&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kv_jump</span>
+        
+        <span class="k">return</span> <span class="n">picks</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_new</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refined</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Internal.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ITEMS_</span><span class="p">:</span> <span class="c1"># Force garbage collection</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ITEMS_</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+        
+        <span class="n">grouped_items</span> <span class="o">=</span> <span class="n">get_captures</span><span class="p">(</span><span class="n">refined</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ITEMS_</span><span class="p">[</span><span class="s1">&#39;grouped&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">grouped_items</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_update_capture</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refined</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Internal.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="n">grouped_items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ITEMS_</span><span class="p">[</span><span class="s1">&#39;grouped&#39;</span><span class="p">]</span>
+        
+        <span class="n">idx_p</span> <span class="o">=</span> <span class="n">update_captures</span><span class="p">(</span><span class="n">refined</span><span class="p">,</span> <span class="n">grouped_items</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">idx_p</span> <span class="o">!=</span> <span class="n">grouped_items</span><span class="p">[</span><span class="s1">&#39;N&#39;</span><span class="p">]:</span> <span class="c1"># This is expected to almost always happen</span>
+            
+            <span class="n">ALLOC</span> <span class="o">=</span> <span class="n">grouped_items</span><span class="p">[</span><span class="s1">&#39;ALLOC&#39;</span><span class="p">]</span>
+            
+            <span class="n">grouped_items</span><span class="p">[</span><span class="s1">&#39;pick_ptrs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ALLOC</span><span class="p">[</span><span class="s1">&#39;PICK_PTRS&#39;</span><span class="p">][:</span><span class="n">idx_p</span><span class="p">]</span>
+            <span class="n">grouped_items</span><span class="p">[</span><span class="s1">&#39;idx_bands&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ALLOC</span><span class="p">[</span><span class="s1">&#39;IDX_BANDS&#39;</span><span class="p">][:</span><span class="n">idx_p</span><span class="p">]</span>
+            <span class="n">grouped_items</span><span class="p">[</span><span class="s1">&#39;nbands&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ALLOC</span><span class="p">[</span><span class="s1">&#39;NBANDS&#39;</span><span class="p">][:</span><span class="n">idx_p</span><span class="p">]</span>
+            
+            <span class="n">grouped_items</span><span class="p">[</span><span class="s1">&#39;N&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx_p</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_alloc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refined</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Check if allocated space is enough. Reallocate if not.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="n">nbands_max</span> <span class="o">=</span> <span class="n">refined</span><span class="p">[</span><span class="s1">&#39;nbands_max&#39;</span><span class="p">]</span>
+        <span class="n">N_max</span> <span class="o">=</span> <span class="n">refined</span><span class="p">[</span><span class="s1">&#39;N_max&#39;</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="n">N_max</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ITEMS_</span><span class="p">[</span><span class="s1">&#39;grouped&#39;</span><span class="p">][</span><span class="s1">&#39;ALLOC&#39;</span><span class="p">][</span><span class="s1">&#39;NP&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        
+        <span class="c1"># Less bands than allocated can reuse but is rare within the same script so I will not deal with it</span>
+        <span class="c1"># Actually it is a terrible idea to try that, some pointer aritmetic relies on nbands_max</span>
+        <span class="c1"># Tl;dr: do not change this</span>
+        <span class="k">if</span> <span class="n">nbands_max</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ITEMS_</span><span class="p">[</span><span class="s1">&#39;grouped&#39;</span><span class="p">][</span><span class="s1">&#39;ALLOC&#39;</span><span class="p">][</span><span class="s1">&#39;NB&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        
+        <span class="k">return</span> <span class="kc">True</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">refine_picks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trig</span><span class="p">,</span> <span class="n">cfs</span><span class="p">,</span> <span class="n">posix_ref</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Refine picks to find onset samples.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="n">t_ini</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+        
+        <span class="n">trig_windows</span> <span class="o">=</span> <span class="n">trig</span><span class="p">[</span><span class="s1">&#39;windows&#39;</span><span class="p">]</span>
+        <span class="n">trig_fs</span> <span class="o">=</span> <span class="n">trig</span><span class="p">[</span><span class="s1">&#39;fs&#39;</span><span class="p">]</span>
+        <span class="n">trig_selected</span> <span class="o">=</span> <span class="n">trig</span><span class="p">[</span><span class="s1">&#39;selected&#39;</span><span class="p">]</span>
+        <span class="n">cfs_data</span> <span class="o">=</span> <span class="n">cfs</span><span class="o">.</span><span class="n">_ITEMS_</span><span class="p">[</span><span class="s1">&#39;cf&#39;</span><span class="p">][</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
+        <span class="n">cf_windows</span> <span class="o">=</span> <span class="n">cfs</span><span class="o">.</span><span class="n">_ITEMS_</span><span class="p">[</span><span class="s1">&#39;cf&#39;</span><span class="p">][</span><span class="s1">&#39;windows&#39;</span><span class="p">]</span>
+        <span class="n">trig_mingap</span> <span class="o">=</span> <span class="n">trig</span><span class="p">[</span><span class="s1">&#39;mingap&#39;</span><span class="p">]</span>
+        
+        <span class="n">iter_items</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">trig_selected</span><span class="p">,</span> <span class="n">trig_windows</span><span class="p">,</span>
+                                                 <span class="n">cfs_data</span><span class="p">,</span> <span class="n">cf_windows</span><span class="p">,</span> <span class="n">trig_fs</span><span class="p">)</span>
+        
+        <span class="n">refined</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_refine_singlepicks</span><span class="p">(</span><span class="n">trigs</span><span class="p">,</span> <span class="n">wl</span><span class="p">,</span> <span class="n">cf</span><span class="p">,</span> <span class="n">cfwl</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">posix_ref</span><span class="p">)</span>
+                                   <span class="k">for</span> <span class="n">trigs</span><span class="p">,</span> <span class="n">wl</span><span class="p">,</span> <span class="n">cf</span><span class="p">,</span> <span class="n">cfwl</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="n">iter_items</span><span class="p">)</span>
+        <span class="n">refined</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">refined</span><span class="p">)</span>
+        
+        <span class="n">npicks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">picks</span><span class="o">.</span><span class="n">size</span> <span class="k">for</span> <span class="n">picks</span> <span class="ow">in</span> <span class="n">refined</span><span class="p">),</span>
+                                                              <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        
+        <span class="n">N_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">npicks</span><span class="p">)</span>
+        
+        <span class="n">capture_gaps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">trig_windows</span><span class="o">/</span><span class="n">trig_fs</span><span class="p">,</span> <span class="n">trig_mingap</span><span class="o">/</span><span class="n">trig_fs</span><span class="p">)</span>
+        <span class="n">capture_gaps</span> <span class="o">/=</span> <span class="mf">2.0</span>
+        
+        <span class="n">centralfreq</span> <span class="o">=</span> <span class="n">cfs</span><span class="o">.</span><span class="n">_ITEMS_</span><span class="p">[</span><span class="s1">&#39;cf&#39;</span><span class="p">][</span><span class="s1">&#39;centralfreq&#39;</span><span class="p">]</span>
+        
+        <span class="n">refined_items</span> <span class="o">=</span> \
+            <span class="p">{</span>
+            <span class="s1">&#39;refined&#39;</span> <span class="p">:</span> <span class="n">refined</span><span class="p">,</span>
+            <span class="s1">&#39;npicks&#39;</span> <span class="p">:</span> <span class="n">npicks</span><span class="p">,</span>
+            <span class="s1">&#39;centralfreq&#39;</span> <span class="p">:</span> <span class="n">centralfreq</span><span class="p">,</span>
+            <span class="s1">&#39;capture_gaps&#39;</span> <span class="p">:</span> <span class="n">capture_gaps</span><span class="p">,</span>
+            <span class="s1">&#39;posix_ref&#39;</span> <span class="p">:</span> <span class="n">posix_ref</span><span class="p">,</span>
+            <span class="s1">&#39;nbands_max&#39;</span> <span class="p">:</span> <span class="n">npicks</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+            <span class="s1">&#39;N_max&#39;</span> <span class="p">:</span> <span class="n">N_max</span><span class="p">,</span>
+            <span class="p">}</span>
+        
+        <span class="n">t_fin</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+        
+        <span class="n">refine_time</span> <span class="o">=</span> <span class="n">t_fin</span> <span class="o">-</span> <span class="n">t_ini</span>
+        
+        <span class="n">refined_items</span><span class="p">[</span><span class="s1">&#39;refine_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">refine_time</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_STATS_</span><span class="p">[</span><span class="s1">&#39;refine&#39;</span><span class="p">][</span><span class="s1">&#39;time_last&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">refine_time</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_STATS_</span><span class="p">[</span><span class="s1">&#39;refine&#39;</span><span class="p">][</span><span class="s1">&#39;time_total&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">refine_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_STATS_</span><span class="p">[</span><span class="s1">&#39;refine&#39;</span><span class="p">][</span><span class="s1">&#39;n_processed&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+        <span class="k">return</span> <span class="n">refined_items</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_picks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refined</span><span class="p">,</span> <span class="n">clear</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Groups and select picks based on number of bands triggered.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="n">t_ini</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ITEMS_</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_alloc</span><span class="p">(</span><span class="n">refined</span><span class="p">)</span> <span class="ow">or</span> <span class="n">clear</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_new</span><span class="p">(</span><span class="n">refined</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_STATS_</span><span class="p">[</span><span class="s1">&#39;capture&#39;</span><span class="p">][</span><span class="s1">&#39;n_reset&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_capture</span><span class="p">(</span><span class="n">refined</span><span class="p">)</span>
+        
+        <span class="n">t_mid</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+        
+        <span class="n">grouped_items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ITEMS_</span><span class="p">[</span><span class="s1">&#39;grouped&#39;</span><span class="p">]</span>
+        
+        <span class="n">pick_ptrs</span> <span class="o">=</span> <span class="n">grouped_items</span><span class="p">[</span><span class="s1">&#39;pick_ptrs&#39;</span><span class="p">]</span>
+        <span class="n">idx_bands</span> <span class="o">=</span> <span class="n">grouped_items</span><span class="p">[</span><span class="s1">&#39;idx_bands&#39;</span><span class="p">]</span>
+        <span class="n">nbands</span> <span class="o">=</span> <span class="n">grouped_items</span><span class="p">[</span><span class="s1">&#39;nbands&#39;</span><span class="p">]</span>
+        <span class="n">centralfreq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">refined</span><span class="p">[</span><span class="s1">&#39;centralfreq&#39;</span><span class="p">])</span>
+        
+        <span class="n">iter_items</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">pick_ptrs</span><span class="p">,</span> <span class="n">idx_bands</span><span class="p">,</span> <span class="n">nbands</span><span class="p">)</span>
+        
+        <span class="n">NB</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_PARAM_</span><span class="p">[</span><span class="s1">&#39;nbands&#39;</span><span class="p">]</span>
+        
+        <span class="n">selected_picks</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">KVPick</span><span class="p">(</span><span class="n">ptrs</span><span class="p">,</span> <span class="n">centralfreq</span><span class="p">[</span><span class="n">idx_b</span><span class="p">[:</span><span class="n">nb</span><span class="p">]])</span>
+                                       <span class="k">for</span> <span class="n">ptrs</span><span class="p">,</span> <span class="n">idx_b</span><span class="p">,</span> <span class="n">nb</span> <span class="ow">in</span> <span class="n">iter_items</span>
+                                                                   <span class="k">if</span> <span class="n">nb</span><span class="o">&gt;=</span><span class="n">NB</span><span class="p">)</span>
+        
+        <span class="n">t_fin</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+        
+        <span class="n">capture_time</span> <span class="o">=</span> <span class="n">t_mid</span> <span class="o">-</span> <span class="n">t_ini</span>
+        <span class="n">select_time</span> <span class="o">=</span> <span class="n">t_fin</span> <span class="o">-</span> <span class="n">t_mid</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_STATS_</span><span class="p">[</span><span class="s1">&#39;capture&#39;</span><span class="p">][</span><span class="s1">&#39;time_last&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">capture_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_STATS_</span><span class="p">[</span><span class="s1">&#39;select&#39;</span><span class="p">][</span><span class="s1">&#39;time_last&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">select_time</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_STATS_</span><span class="p">[</span><span class="s1">&#39;capture&#39;</span><span class="p">][</span><span class="s1">&#39;time_total&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">capture_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_STATS_</span><span class="p">[</span><span class="s1">&#39;capture&#39;</span><span class="p">][</span><span class="s1">&#39;n_processed&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_STATS_</span><span class="p">[</span><span class="s1">&#39;select&#39;</span><span class="p">][</span><span class="s1">&#39;time_total&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">select_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_STATS_</span><span class="p">[</span><span class="s1">&#39;select&#39;</span><span class="p">][</span><span class="s1">&#39;n_processed&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+        <span class="k">return</span> <span class="n">selected_picks</span>
+
+
+
+<div class="viewcode-block" id="KVPick">
+<a class="viewcode-back" href="../../results.html#kvp.picker.KVPick">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">KVPick</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Grouped KVP phase pick.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">single_ptrs</span><span class="p">,</span> <span class="n">bands</span><span class="p">):</span>
+        
+        <span class="n">nb</span> <span class="o">=</span> <span class="n">bands</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">picks_mem</span> <span class="o">=</span> <span class="n">t_Singlepick</span><span class="p">[</span><span class="n">nb</span><span class="p">]()</span>
+        
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nb</span><span class="p">):</span>
+            <span class="n">picks_mem</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">single_ptrs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nb_</span> <span class="o">=</span> <span class="n">nb</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bands_</span> <span class="o">=</span> <span class="n">LOCK_ARR</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">bands</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_PICKS_MEM_</span> <span class="o">=</span> <span class="n">picks_mem</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_picks_</span> <span class="o">=</span> <span class="n">LOCK_ARR</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ctypeslib</span><span class="o">.</span><span class="n">as_array</span><span class="p">(</span><span class="n">picks_mem</span><span class="p">,</span>
+                                                              <span class="n">t_Singlepick</span><span class="p">))</span>
+    
+<div class="viewcode-block" id="KVPick.onset">
+<a class="viewcode-back" href="../../results.html#kvp.picker.KVPick.onset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">onset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;med&#39;</span><span class="p">,</span> <span class="n">posix</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Get onset time.</span>
+<span class="sd">        </span>
+<span class="sd">        :param method: Method to calculate the onset, only median is </span>
+<span class="sd">            implemented for now (:code:`&#39;med&#39;`)</span>
+<span class="sd">        :type method: :py:class:`str`</span>
+<span class="sd">        :param posix: Flag to get onset as POSIX time, default is :code:`True`. </span>
+<span class="sd">            If not, get time in seconds from input data start</span>
+<span class="sd">        :type posix: :py:class:`bool`, optional</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="k">if</span> <span class="n">method</span> <span class="o">!=</span> <span class="s1">&#39;med&#39;</span><span class="p">:</span>
+            <span class="n">errmsg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;invalid onset picking method </span><span class="se">\&#39;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="se">\&#39;</span><span class="s1">&#39;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
+        
+        <span class="n">idx</span> <span class="o">=</span> <span class="mi">4</span> <span class="k">if</span> <span class="n">posix</span> <span class="k">else</span> <span class="mi">3</span>
+        
+        <span class="n">times</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">sp</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_picks_</span><span class="p">)</span>
+        
+        <span class="n">onset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">times</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">onset</span></div>
+
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">singlepicks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Individual singlepicks.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_picks_</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">nb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Number of bands.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nb_</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">centralfreqs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Central frequencies.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bands_</span></div>
+
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">LOCK_ARR</span><span class="p">(</span><span class="n">arr</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Lock array.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="n">arr</span><span class="o">.</span><span class="n">flags</span><span class="p">[</span><span class="s1">&#39;WRITEABLE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    
+    <span class="k">return</span> <span class="n">arr</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025 H. Latorre et al., Barcelona Center for Subsurface Imaging.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

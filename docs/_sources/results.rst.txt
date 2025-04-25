@@ -1,0 +1,18 @@
+Results containers
+==================
+
+The classes presented below are **not available directly to the user** and are 
+instead **returned by other functions or methods**.
+
+.. currentmodule:: kvp.api
+
+Checking the results
+--------------------
+
+.. autoclass:: KVPOutput
+    :members:
+
+.. currentmodule:: kvp.picker
+
+.. autoclass:: KVPick
+    :members:

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>KVP: Multiscale kurtosis phase picking &mdash; Kurtosis-Value-Picker  documentation</title>
+  <title>DAS at the Teide Observatory &mdash; Kurtosis-Value-Picker  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
@@ -19,7 +19,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="User classes and functions" href="user.html" /> 
+    <link rel="next" title="OBS from the SAFE experiment" href="safe_signal.html" />
+    <link rel="prev" title="Results containers" href="results.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -30,7 +31,7 @@
 
           
           
-          <a href="#" class="icon icon-home">
+          <a href="index.html" class="icon icon-home">
             Kurtosis-Value-Picker
               <img src="_static/logo_BCSI.png" class="logo" alt="Logo"/>
           </a>
@@ -48,8 +49,8 @@
 <li class="toctree-l1"><a class="reference internal" href="results.html">Picking results</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Examples</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="ot_event.html">DAS earthquake</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">DAS earthquake</a></li>
 <li class="toctree-l1"><a class="reference internal" href="safe_signal.html">OBS signal</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Resources</span></p>
@@ -65,17 +66,17 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #28b8d5" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">Kurtosis-Value-Picker</a>
+          <a href="index.html">Kurtosis-Value-Picker</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">KVP: Multiscale kurtosis phase picking</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">DAS at the Teide Observatory</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/ot_event.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -83,52 +84,27 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="kvp-multiscale-kurtosis-phase-picking">
-<span id="module-kvp"></span><h1>KVP: Multiscale kurtosis phase picking<a class="headerlink" href="#kvp-multiscale-kurtosis-phase-picking" title="Link to this heading"></a></h1>
-<p>Kurtosis-Value-Picker (<strong>KVP</strong>) is a <strong>seismic phase picker based on kurtosis</strong> 
-that produces picks with spectral information. It <strong>filters input traces using 
-a family of Ricker wavelet frames</strong> to apply the wavelet transform (FIR filter),  
-<strong>achieving narrowband picking resolution</strong>. The full algorithm is described 
-in detail by the corresponding publication.</p>
-<div class="important admonition">
-<p class="admonition-title">Citation</p>
-<p><a class="reference external" href="https://doi.org/10.1093/gji/ggaf136">https://doi.org/10.1093/gji/ggaf136</a></p>
-</div>
-<section id="b-csi-implementation-and-python-package">
-<h2>B-CSI implementation and Python package<a class="headerlink" href="#b-csi-implementation-and-python-package" title="Link to this heading"></a></h2>
-<p>Our implementation <strong>revolves around the</strong> <a class="reference internal" href="user.html#kvp.api.KVP" title="kvp.api.KVP"><code class="xref py py-class docutils literal notranslate"><span class="pre">KVP</span></code></a> <strong>class</strong>, which 
-aims to provide a <strong>simple and intuitive interface</strong> to the algorithm. 
-Instances of this class <strong>store all picking parameters to run the full 
-algorithm</strong> on any data fed to them.</p>
-<p>Picking <strong>results are stored on instances of the</strong> <a class="reference internal" href="results.html#kvp.api.KVPOutput" title="kvp.api.KVPOutput"><code class="xref py py-class docutils literal notranslate"><span class="pre">KVPOutput</span></code></a> 
-<strong>class</strong>. This class provides access to <strong>picked phases, available as POSIX 
-timestamps or time in seconds from the start of the input data</strong>. Optionally, 
-this class <strong>can also expose copies of both filtered and characteristic 
-function (CF) traces</strong>. This should be done carefully, as running the algorithm 
-iterativelly over many data may quickly fill all available memory on your 
-workstation.</p>
-<div class="note admonition">
-<p class="admonition-title">Memory optimizations</p>
-<p>The package tries to be smart about memory usage. <a class="reference internal" href="user.html#kvp.api.KVP" title="kvp.api.KVP"><code class="xref py py-class docutils literal notranslate"><span class="pre">KVP</span></code></a> instances 
-will try to reuse their already allocated memory during a previous run and 
-will only reallocate if necessary. This is all handled internally. In 
-particular, the performance boost when all inputs have the exact same 
-length (e.g. DAS) is massive.</p>
-</div>
+  <section id="das-at-the-teide-observatory">
+<h1>DAS at the Teide Observatory<a class="headerlink" href="#das-at-the-teide-observatory" title="Link to this heading"></a></h1>
+<p>The script <code class="code docutils literal notranslate"><span class="pre">das_event.py</span></code> at the <code class="code docutils literal notranslate"><span class="pre">examples</span></code> folder on the
+repository showcases how to run KVP. It will also plot the outputs.</p>
+<section id="figures">
+<h2>Figures<a class="headerlink" href="#figures" title="Link to this heading"></a></h2>
+<img alt="_images/KVP_OT_example_1.png" src="_images/KVP_OT_example_1.png" />
+<img alt="_images/KVP_OT_example_2.png" src="_images/KVP_OT_example_2.png" />
+<img alt="_images/KVP_OT_example_3.png" src="_images/KVP_OT_example_3.png" />
+<img alt="_images/KVP_OT_example_4.png" src="_images/KVP_OT_example_4.png" />
+<img alt="_images/KVP_OT_example_5.png" src="_images/KVP_OT_example_5.png" />
+<img alt="_images/KVP_OT_example_6.png" src="_images/KVP_OT_example_6.png" />
 </section>
 </section>
-<div class="toctree-wrapper compound">
-</div>
-<div class="toctree-wrapper compound">
-</div>
-<div class="toctree-wrapper compound">
-</div>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="user.html" class="btn btn-neutral float-right" title="User classes and functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="results.html" class="btn btn-neutral float-left" title="Results containers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="safe_signal.html" class="btn btn-neutral float-right" title="OBS from the SAFE experiment" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

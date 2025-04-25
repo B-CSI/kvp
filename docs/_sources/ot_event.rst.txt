@@ -1,0 +1,20 @@
+DAS at the Teide Observatory
+============================
+
+The script :code:`das_event.py` at the :code:`examples` folder on the 
+repository showcases how to run KVP. It will also plot the outputs.
+
+Figures
+-------
+
+.. image:: KVP_OT_example_1.png
+
+.. image:: KVP_OT_example_2.png
+
+.. image:: KVP_OT_example_3.png
+
+.. image:: KVP_OT_example_4.png
+
+.. image:: KVP_OT_example_5.png
+
+.. image:: KVP_OT_example_6.png

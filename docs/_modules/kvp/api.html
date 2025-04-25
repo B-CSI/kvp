@@ -1,0 +1,529 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kvp.api &mdash; Kurtosis-Value-Picker  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #28b8d5" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Kurtosis-Value-Picker
+              <img src="../../_static/logo_BCSI.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Description</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user.html">User classes and functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../results.html">Picking results</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../ot_event.html">DAS earthquake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../safe_signal.html">OBS signal</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/B-CSI/kvp">Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #28b8d5" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Kurtosis-Value-Picker</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">kvp.api</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for kvp.api</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Public API.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringIO</span><span class="p">,</span> <span class="n">SEEK_END</span>
+
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">kvp.filter</span><span class="w"> </span><span class="kn">import</span> <span class="n">MexhatFilters</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kvp.cf</span><span class="w"> </span><span class="kn">import</span> <span class="n">KurtosisFunctions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kvp.trigger</span><span class="w"> </span><span class="kn">import</span> <span class="n">KurtosisJumps</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kvp.picker</span><span class="w"> </span><span class="kn">import</span> <span class="n">KurtosisPicker</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kvp.callers</span><span class="w"> </span><span class="kn">import</span> <span class="n">allocate_capture</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kvp.lib</span><span class="w"> </span><span class="kn">import</span> <span class="n">KVPError</span>
+
+
+
+<span class="n">UTC</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">utc</span>
+<span class="n">TSFORMAT</span> <span class="o">=</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">T%H:%M:%S.</span><span class="si">%f</span><span class="s1">&#39;</span>
+
+
+
+<div class="viewcode-block" id="KVP">
+<a class="viewcode-back" href="../../user.html#kvp.api.KVP">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">KVP</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Main class to run the KVP algorithm. Instances of this class are used to </span>
+<span class="sd">    **run the algorithm with the stored parameters**, as long as the input data </span>
+<span class="sd">    is suitable (i.e. sufficient sampling rate and number of samples). The most </span>
+<span class="sd">    basic **input requires a data array, its sampling rate and an optional </span>
+<span class="sd">    POSIX timestamp** to be used as reference, i.e. the start time of the data. </span>
+<span class="sd">    ObsPy :py:class:`Trace` instances can be simply be passed to the </span>
+<span class="sd">    :py:meth:`obspy` method, which will handle everything.</span>
+<span class="sd">    </span>
+<span class="sd">    Inputs are fed through the :py:meth:`run` method.</span>
+<span class="sd">    </span>
+<span class="sd">    .. admonition:: Parameter restrictions</span>
+<span class="sd">        :class: warning</span>
+<span class="sd">        </span>
+<span class="sd">        The following restrictions apply when setting the parameters or trying </span>
+<span class="sd">        to run the algorithm:</span>
+<span class="sd">            </span>
+<span class="sd">            * Jump window length cannot be longer than CF window length, and </span>
+<span class="sd">              typically should be much smaller (e.g. 2 cycles vs 90 cycles).</span>
+<span class="sd">            * Any input array must be long enough to fit all CF windows, and </span>
+<span class="sd">              thus the largest scale, i.e. lowest central frequency, determines </span>
+<span class="sd">              the minimum required duration. Users must account for this when </span>
+<span class="sd">              cutting their data for inputs, ideally leaving space on both </span>
+<span class="sd">              sides.</span>
+<span class="sd">            * Sampling rates must be at least five times larger than the </span>
+<span class="sd">              highest central frequency, otherwise the convolving wavelet would </span>
+<span class="sd">              not really be a Ricker.</span>
+<span class="sd">            </span>
+<span class="sd">    </span>
+<span class="sd">    :param freqmax: Central frequency of the highest scale</span>
+<span class="sd">    :type freqmax: :py:class:`float`</span>
+<span class="sd">    :param octaves: Number of octaves</span>
+<span class="sd">    :type octaves: :py:class:`int`</span>
+<span class="sd">    :param voices: Number of voices per octave</span>
+<span class="sd">    :type voices: :py:class:`int`</span>
+<span class="sd">    :param cf_cycles: Length of CF sliding windows, in cycles</span>
+<span class="sd">    :type cf_cycles: :py:class:`float`</span>
+<span class="sd">    :param jmp_cycles: Length of jump windows, in cycles</span>
+<span class="sd">    :type jmp_cycles: :py:class:`float`</span>
+<span class="sd">    :param jump: Kurtosis jump threshold for triggers</span>
+<span class="sd">    :type jump: :py:class:`float`</span>
+<span class="sd">    :param mingap: Minimum gap between triggers, in seconds</span>
+<span class="sd">    :type mingap: :py:class:`float`</span>
+<span class="sd">    :param nbands: Required number of triggered bands to preserve picks</span>
+<span class="sd">    :type nbands: :py:class:`int`</span>
+<span class="sd">    :param downsample: Flag to downsample lower scales, default is :code:`True`</span>
+<span class="sd">    :type downsample: :py:class:`bool`, optional</span>
+<span class="sd">    :param N_max: Maximum number of expected possible grouped picks, default is </span>
+<span class="sd">        :code:`1000000`</span>
+<span class="sd">    :type N_max: :py:class:`int`, optional </span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">freqmax</span> <span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                 <span class="n">octaves</span> <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                 <span class="n">voices</span> <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                 <span class="n">cf_cycles</span> <span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                 <span class="n">jmp_cycles</span> <span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                 <span class="n">jump</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                 <span class="n">mingap</span> <span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                 <span class="n">nbands</span> <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                 <span class="n">downsample</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">N_max</span><span class="o">=</span><span class="mi">1000000</span><span class="p">,</span>
+                 <span class="p">):</span>
+        
+        <span class="k">if</span> <span class="n">jmp_cycles</span> <span class="o">&gt;</span> <span class="n">cf_cycles</span><span class="p">:</span>
+            <span class="n">errmsg</span> <span class="o">=</span> <span class="s1">&#39;jump cycles cannot be larger than CF cycles&#39;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_PARAM_</span> <span class="o">=</span> \
+            <span class="p">{</span>
+            <span class="s1">&#39;freqmax&#39;</span> <span class="p">:</span> <span class="n">freqmax</span><span class="p">,</span>
+            <span class="s1">&#39;octaves&#39;</span> <span class="p">:</span> <span class="n">octaves</span><span class="p">,</span>
+            <span class="s1">&#39;voices&#39;</span> <span class="p">:</span> <span class="n">voices</span><span class="p">,</span>
+            <span class="s1">&#39;cf_cycles&#39;</span> <span class="p">:</span> <span class="n">cf_cycles</span><span class="p">,</span>
+            <span class="s1">&#39;jmp_cycles&#39;</span> <span class="p">:</span> <span class="n">jmp_cycles</span><span class="p">,</span>
+            <span class="s1">&#39;jump&#39;</span> <span class="p">:</span> <span class="n">jump</span><span class="p">,</span>
+            <span class="s1">&#39;mingap&#39;</span> <span class="p">:</span> <span class="n">mingap</span><span class="p">,</span>
+            <span class="s1">&#39;nbands&#39;</span> <span class="p">:</span> <span class="n">nbands</span><span class="p">,</span>
+            <span class="s1">&#39;downsample&#39;</span> <span class="p">:</span> <span class="n">downsample</span><span class="p">,</span>
+            <span class="p">}</span>
+        
+        <span class="n">filt</span> <span class="o">=</span> <span class="n">MexhatFilters</span><span class="p">(</span><span class="n">freqmax</span><span class="p">,</span> <span class="n">octaves</span><span class="p">,</span> <span class="n">voices</span><span class="p">,</span> <span class="n">downsample</span><span class="p">)</span>
+        <span class="n">cf</span> <span class="o">=</span> <span class="n">KurtosisFunctions</span><span class="p">(</span><span class="n">cf_cycles</span><span class="p">)</span>
+        <span class="n">trig</span> <span class="o">=</span> <span class="n">KurtosisJumps</span><span class="p">(</span><span class="n">jmp_cycles</span><span class="p">)</span>
+        <span class="n">pick</span> <span class="o">=</span> <span class="n">KurtosisPicker</span><span class="p">(</span><span class="n">nbands</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ITEMS_</span> <span class="o">=</span> \
+            <span class="p">{</span>
+            <span class="s1">&#39;filt&#39;</span> <span class="p">:</span> <span class="n">filt</span><span class="p">,</span>
+            <span class="s1">&#39;cf&#39;</span> <span class="p">:</span> <span class="n">cf</span><span class="p">,</span>
+            <span class="s1">&#39;trig&#39;</span> <span class="p">:</span> <span class="n">trig</span><span class="p">,</span>
+            <span class="s1">&#39;pick&#39;</span> <span class="p">:</span> <span class="n">pick</span><span class="p">,</span>
+            <span class="p">}</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">ALLOC_CAPTURE</span><span class="p">(</span><span class="n">N_max</span><span class="p">)</span>
+        
+        <span class="n">s</span> <span class="o">=</span> <span class="n">octaves</span> <span class="o">*</span> <span class="n">voices</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">freqmin</span> <span class="o">=</span> <span class="n">freqmax</span> <span class="o">/</span> <span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="n">s</span><span class="o">/</span><span class="n">voices</span><span class="p">)</span>
+        <span class="n">min_duration</span> <span class="o">=</span> <span class="n">cf_cycles</span> <span class="o">/</span> <span class="n">freqmin</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_UTIL_</span> <span class="o">=</span> \
+            <span class="p">{</span>
+            <span class="s1">&#39;min_duration&#39;</span> <span class="p">:</span> <span class="n">min_duration</span><span class="p">,</span>
+            <span class="s1">&#39;n_runs&#39;</span> <span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="p">}</span>
+    
+<div class="viewcode-block" id="KVP.obspy">
+<a class="viewcode-back" href="../../user.html#kvp.api.KVP.obspy">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">obspy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Run the picking algorithm for an input ObsPy </span>
+<span class="sd">        :py:class:`~obspy.Trace`.</span>
+<span class="sd">        </span>
+<span class="sd">        :param trace: Input trace</span>
+<span class="sd">        :type trace: :py:class:`obspy.Trace`</span>
+<span class="sd">        :param kwargs: Keyword arguments, these are passed to :py:meth:`run`</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="n">data</span> <span class="o">=</span> <span class="n">trace</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">fs</span> <span class="o">=</span> <span class="n">trace</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">sampling_rate</span>
+        <span class="n">posix_ref</span> <span class="o">=</span> <span class="n">trace</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">starttime</span><span class="o">.</span><span class="n">timestamp</span>
+        
+        <span class="n">netw</span> <span class="o">=</span> <span class="n">trace</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">network</span>
+        <span class="n">sta</span> <span class="o">=</span> <span class="n">trace</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">station</span>
+        <span class="n">chn</span> <span class="o">=</span> <span class="n">trace</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span>
+        
+        <span class="n">rec_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">netw</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">sta</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">chn</span><span class="si">}</span><span class="s1">&#39;</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">posix_ref</span><span class="p">,</span> <span class="n">rec_id</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="KVP.run">
+<a class="viewcode-back" href="../../user.html#kvp.api.KVP.run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">posix_ref</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+            <span class="n">rec_id</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">wt_traces</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cf_traces</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Run the picking algorithm for an input data array.</span>
+<span class="sd">        </span>
+<span class="sd">        :param data: Input data array</span>
+<span class="sd">        :type data: :py:class:`numpy.ndarray`</span>
+<span class="sd">        :param fs: Sampling rate of input data</span>
+<span class="sd">        :type fs: :py:class:`float`</span>
+<span class="sd">        :param posix_ref: Reference POSIX timestamp (starting time of data), </span>
+<span class="sd">            defaults to 0.0 if not given (1970-01-01T00:00:00) </span>
+<span class="sd">        :type posix_ref: :py:class:`float`, optional</span>
+<span class="sd">        :param rec_id: Text identifier for the input data, e.g.</span>
+<span class="sd">            :code:`{network}.{station}.{channel_code}`</span>
+<span class="sd">        :type rec_id: :py:class:`str`, optional</span>
+<span class="sd">        :param wt_traces: Flag to include filtered traces on the output, </span>
+<span class="sd">            default is :code:`False`</span>
+<span class="sd">        :type wt_traces: :py:class:`bool`, optional</span>
+<span class="sd">        :param cf_traces: Flag to include CF traces on the output, default is </span>
+<span class="sd">            :code:`False`</span>
+<span class="sd">        :type cf_traces: :py:class:`bool`, optional</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="n">kvp_items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ITEMS_</span>
+        <span class="n">kvp_param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_PARAM_</span>
+        
+        <span class="n">filt</span> <span class="o">=</span> <span class="n">kvp_items</span><span class="p">[</span><span class="s1">&#39;filt&#39;</span><span class="p">]</span>
+        <span class="n">cf</span> <span class="o">=</span> <span class="n">kvp_items</span><span class="p">[</span><span class="s1">&#39;cf&#39;</span><span class="p">]</span>
+        <span class="n">trig</span> <span class="o">=</span> <span class="n">kvp_items</span><span class="p">[</span><span class="s1">&#39;trig&#39;</span><span class="p">]</span>
+        <span class="n">pick</span> <span class="o">=</span> <span class="n">kvp_items</span><span class="p">[</span><span class="s1">&#39;pick&#39;</span><span class="p">]</span>
+        
+        <span class="n">input_duration</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">size</span> <span class="o">/</span> <span class="n">fs</span>
+        
+        <span class="k">if</span> <span class="n">input_duration</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_UTIL_</span><span class="p">[</span><span class="s1">&#39;min_duration&#39;</span><span class="p">]:</span>
+            <span class="n">errmsg</span> <span class="o">=</span> <span class="s1">&#39;input data segment is too short&#39;</span>
+            <span class="k">raise</span> <span class="n">KVPError</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
+        
+        <span class="n">filt</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+        <span class="n">cf</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">filt</span><span class="p">)</span>
+        <span class="n">trig</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">cf</span><span class="p">)</span>
+        
+        <span class="n">jump</span> <span class="o">=</span> <span class="n">kvp_param</span><span class="p">[</span><span class="s1">&#39;jump&#39;</span><span class="p">]</span>
+        <span class="n">mingap</span> <span class="o">=</span> <span class="n">kvp_param</span><span class="p">[</span><span class="s1">&#39;mingap&#39;</span><span class="p">]</span>
+        
+        <span class="n">trig_items</span> <span class="o">=</span> <span class="n">trig</span><span class="o">.</span><span class="n">find_triggers</span><span class="p">(</span><span class="n">jump</span><span class="p">,</span> <span class="n">mingap</span><span class="p">)</span>
+        <span class="n">refined_items</span> <span class="o">=</span> <span class="n">pick</span><span class="o">.</span><span class="n">refine_picks</span><span class="p">(</span><span class="n">trig_items</span><span class="p">,</span> <span class="n">cf</span><span class="p">,</span> <span class="n">posix_ref</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">refined_items</span>
+        <span class="n">selected_picks</span> <span class="o">=</span> <span class="n">pick</span><span class="o">.</span><span class="n">select_picks</span><span class="p">(</span><span class="n">refined_items</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_UTIL_</span><span class="p">[</span><span class="s1">&#39;current_picks&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">selected_picks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_UTIL_</span><span class="p">[</span><span class="s1">&#39;current_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rec_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_UTIL_</span><span class="p">[</span><span class="s1">&#39;current_posix_ref&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">posix_ref</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_UTIL_</span><span class="p">[</span><span class="s1">&#39;n_runs&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+        <span class="k">return</span> <span class="n">KVPOutput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wt_traces</span><span class="p">,</span> <span class="n">cf_traces</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="KVP.ALLOC_CAPTURE">
+<a class="viewcode-back" href="../../user.html#kvp.api.KVP.ALLOC_CAPTURE">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ALLOC_CAPTURE</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N_max</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Explicitly allocate memory for the capture algorithm, which avoids </span>
+<span class="sd">        continuous reallocation during successive runs if the maximum number of </span>
+<span class="sd">        possible picks grows after each run. A large enough pre-allocation will </span>
+<span class="sd">        improve performance, if it lasts.</span>
+<span class="sd">        </span>
+<span class="sd">        The default value should be enough for any reasonable input data.</span>
+<span class="sd">        </span>
+<span class="sd">        :param N_max: Maximum number of expected possible grouped picks</span>
+<span class="sd">        :type N_max: :py:class:`int`</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="n">nbands_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_PARAM_</span><span class="p">[</span><span class="s1">&#39;octaves&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_PARAM_</span><span class="p">[</span><span class="s1">&#39;voices&#39;</span><span class="p">]</span>
+        
+        <span class="n">grouped_items</span> <span class="o">=</span> <span class="n">allocate_capture</span><span class="p">(</span><span class="n">N_max</span><span class="p">,</span> <span class="n">nbands_max</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ITEMS_</span><span class="p">[</span><span class="s1">&#39;pick&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">_ITEMS_</span><span class="p">[</span><span class="s1">&#39;grouped&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">grouped_items</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ITEMS_</span><span class="p">[</span><span class="s1">&#39;pick&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">_STATS_</span><span class="p">[</span><span class="s1">&#39;capture&#39;</span><span class="p">][</span><span class="s1">&#39;n_reset&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span></div>
+</div>
+
+
+
+
+<div class="viewcode-block" id="KVPOutput">
+<a class="viewcode-back" href="../../results.html#kvp.api.KVPOutput">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">KVPOutput</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Class to store KVP outputs. It contains :py:class:`KVPick` instances and </span>
+<span class="sd">    supports list-like indexing, i.e. :code:`output[idx]`, to access them. </span>
+<span class="sd">    It also supports iteration to yield picks, i.e. :py:func:`iter` function </span>
+<span class="sd">    and :code:`for pick in output: ...` iterator syntax.</span>
+<span class="sd">    </span>
+<span class="sd">    If filtered or CF traces are saved after a run, they can be retrieved from </span>
+<span class="sd">    the corresponding methods, :py:meth:`wt_traces` and :py:meth:`cf_traces`, </span>
+<span class="sd">    respectively. The returned tuples contain a series of two-tuples with the </span>
+<span class="sd">    data arrays and dictionaries containing sampling rate and starttime.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kvp_items</span><span class="p">,</span> <span class="n">wt_traces</span><span class="p">,</span> <span class="n">cf_traces</span><span class="p">):</span>
+        
+        <span class="n">wt</span> <span class="o">=</span> <span class="p">()</span>
+        <span class="n">cf</span> <span class="o">=</span> <span class="p">()</span>
+        
+        <span class="n">picks</span> <span class="o">=</span> <span class="n">kvp_items</span><span class="o">.</span><span class="n">_UTIL_</span><span class="p">[</span><span class="s1">&#39;current_picks&#39;</span><span class="p">]</span>
+        <span class="n">rec_id</span> <span class="o">=</span> <span class="n">kvp_items</span><span class="o">.</span><span class="n">_UTIL_</span><span class="p">[</span><span class="s1">&#39;current_id&#39;</span><span class="p">]</span>
+        <span class="n">posix_ref</span> <span class="o">=</span> <span class="n">kvp_items</span><span class="o">.</span><span class="n">_UTIL_</span><span class="p">[</span><span class="s1">&#39;current_posix_ref&#39;</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="n">wt_traces</span><span class="p">:</span>
+            <span class="n">wt</span> <span class="o">=</span> <span class="n">kvp_items</span><span class="o">.</span><span class="n">_ITEMS_</span><span class="p">[</span><span class="s1">&#39;filt&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">traces</span><span class="p">()</span>
+            <span class="n">wt</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">((</span><span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+                        <span class="p">{</span><span class="s1">&#39;sampling_rate&#39;</span><span class="p">:</span><span class="n">fs</span><span class="p">,</span><span class="s1">&#39;starttime&#39;</span><span class="p">:</span><span class="n">posix_ref</span><span class="p">},</span> <span class="n">fc</span><span class="p">)</span>
+                                                       <span class="k">for</span> <span class="n">data</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">fc</span> <span class="ow">in</span> <span class="n">wt</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">cf_traces</span><span class="p">:</span>
+            <span class="n">cf</span> <span class="o">=</span> <span class="n">kvp_items</span><span class="o">.</span><span class="n">_ITEMS_</span><span class="p">[</span><span class="s1">&#39;cf&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">traces</span><span class="p">()</span>
+            <span class="n">cf</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">((</span><span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+                        <span class="p">{</span><span class="s1">&#39;sampling_rate&#39;</span><span class="p">:</span><span class="n">fs</span><span class="p">,</span><span class="s1">&#39;starttime&#39;</span><span class="p">:</span><span class="n">posix_ref</span><span class="o">+</span><span class="n">wl</span><span class="o">/</span><span class="mf">2.0</span><span class="p">},</span><span class="n">wl</span><span class="p">)</span>
+                                                   <span class="k">for</span> <span class="n">data</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">wl</span> <span class="ow">in</span> <span class="n">cf</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ITEMS_</span> <span class="o">=</span> \
+            <span class="p">{</span>
+            <span class="s1">&#39;picks&#39;</span> <span class="p">:</span> <span class="n">picks</span><span class="p">,</span>
+            <span class="s1">&#39;rec_id&#39;</span> <span class="p">:</span> <span class="n">rec_id</span><span class="p">,</span>
+            <span class="s1">&#39;posix_ref&#39;</span> <span class="p">:</span> <span class="n">posix_ref</span><span class="p">,</span>
+            <span class="s1">&#39;wt_traces&#39;</span> <span class="p">:</span> <span class="n">wt</span><span class="p">,</span>
+            <span class="s1">&#39;cf_traces&#39;</span> <span class="p">:</span> <span class="n">cf</span><span class="p">,</span>
+            <span class="p">}</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Iterate over picks.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">picks</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Len method.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">picks</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__bool__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Bool method.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">picks</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;List-like behaviour.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">picks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Print method.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="k">with</span> <span class="n">StringIO</span><span class="p">()</span> <span class="k">as</span> <span class="n">out</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_to_buffer</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+            <span class="n">strout</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+        
+        <span class="k">return</span> <span class="n">strout</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_write_to_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">buff_obj</span><span class="p">,</span> <span class="n">posix</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">isoformat</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                                                     <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Write to a file-like buffer (e.g. file object, StringIO).</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">picks</span><span class="p">:</span>
+            <span class="k">return</span>
+        
+        <span class="n">rec_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ITEMS_</span><span class="p">[</span><span class="s1">&#39;rec_id&#39;</span><span class="p">]</span>
+        
+        <span class="k">for</span> <span class="n">pick</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">picks</span><span class="p">:</span>
+            
+            <span class="n">ons</span> <span class="o">=</span> <span class="n">pick</span><span class="o">.</span><span class="n">onset</span><span class="p">(</span><span class="n">posix</span><span class="o">=</span><span class="n">posix</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">nb</span> <span class="o">=</span> <span class="n">pick</span><span class="o">.</span><span class="n">nb</span>
+            <span class="n">fl</span> <span class="o">=</span> <span class="n">pick</span><span class="o">.</span><span class="n">centralfreqs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">fh</span> <span class="o">=</span> <span class="n">pick</span><span class="o">.</span><span class="n">centralfreqs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            
+            <span class="k">if</span> <span class="n">posix</span> <span class="ow">and</span> <span class="n">isoformat</span><span class="p">:</span>
+                <span class="n">ons</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">ons</span><span class="p">,</span> <span class="n">UTC</span><span class="p">)</span>
+                <span class="n">ons</span> <span class="o">=</span> <span class="n">ons</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">TSFORMAT</span><span class="p">)</span>
+            
+            <span class="n">buff_obj</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">rec_id</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">ons</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">nb</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">fl</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">fh</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">buff_obj</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">SEEK_END</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">buff_obj</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span> <span class="c1"># Remove last newline</span>
+        <span class="n">buff_obj</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="KVPOutput.append_to_file">
+<a class="viewcode-back" href="../../results.html#kvp.api.KVPOutput.append_to_file">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">append_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fout</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Append picks to an open file, i.e. an object returned by the </span>
+<span class="sd">        :py:func:`open` function. Output columns are :code:`rec_id`, onset </span>
+<span class="sd">        time, number of bands, lowest band, and highest band, respectively.</span>
+<span class="sd">        </span>
+<span class="sd">        :param fout: Open file object</span>
+<span class="sd">        :type fout: file object</span>
+<span class="sd">        :param posix: Flag to get onsets as POSIX time, default is </span>
+<span class="sd">            :code:`True`. If not, get time in seconds from input data start</span>
+<span class="sd">        :type posix: :py:class:`bool`, optional</span>
+<span class="sd">        :param isoformat: Flag to write POSIX times as ISO datetime strings or </span>
+<span class="sd">            :py:class:`float` numbers, default is :code:`True`. Only relevant </span>
+<span class="sd">            if :code:`posix` is set to :code:`True`</span>
+<span class="sd">        :type isoformat: :py:class:`bool`, optional</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_to_buffer</span><span class="p">(</span><span class="n">fout</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="KVPOutput.wt_traces">
+<a class="viewcode-back" href="../../results.html#kvp.api.KVPOutput.wt_traces">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wt_traces</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;List of filtered traces, if available.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ITEMS_</span><span class="p">[</span><span class="s1">&#39;wt_traces&#39;</span><span class="p">]</span></div>
+
+    
+<div class="viewcode-block" id="KVPOutput.cf_traces">
+<a class="viewcode-back" href="../../results.html#kvp.api.KVPOutput.cf_traces">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cf_traces</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;List of CF traces, if available.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ITEMS_</span><span class="p">[</span><span class="s1">&#39;cf_traces&#39;</span><span class="p">]</span></div>
+
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">picks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;List of picks.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ITEMS_</span><span class="p">[</span><span class="s1">&#39;picks&#39;</span><span class="p">]</span></div>
+
+
+
+
+<div class="viewcode-block" id="centralfreqs">
+<a class="viewcode-back" href="../../user.html#kvp.api.centralfreqs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">centralfreqs</span><span class="p">(</span><span class="n">freqmax</span><span class="p">,</span> <span class="n">octaves</span><span class="p">,</span> <span class="n">voices</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Utility function to get the central frequencies for a wavelet family, </span>
+<span class="sd">    given the relevant KVP parameters.</span>
+<span class="sd">    </span>
+<span class="sd">    :param freqmax: Central frequency of the highest scale</span>
+<span class="sd">    :type freqmax: :py:class:`float`</span>
+<span class="sd">    :param octaves: Number of octaves</span>
+<span class="sd">    :type octaves: :py:class:`int`</span>
+<span class="sd">    :param voices: Number of voices per octave</span>
+<span class="sd">    :type voices: :py:class:`int`</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="n">fc</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">freqmax</span><span class="o">/</span><span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="n">s</span><span class="o">/</span><span class="n">voices</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">octaves</span><span class="o">*</span><span class="n">voices</span><span class="p">))</span>
+    
+    <span class="k">return</span> <span class="n">fc</span></div>
+
+    
+    
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025 H. Latorre et al., Barcelona Center for Subsurface Imaging.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

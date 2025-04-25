@@ -1,0 +1,26 @@
+.. automodule:: kvp
+
+.. toctree::
+   :maxdepth: 1
+   :caption: API Description
+   :hidden:
+   
+   User classes and functions <user>
+   Picking results <results>
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Examples
+   :hidden:
+   
+   DAS earthquake <ot_event>
+   OBS signal <safe_signal>
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Resources
+   :hidden:
+   
+   Repository <https://github.com/B-CSI/kvp>
+   Installation <install>
+   Changelog <changelog>

@@ -1,0 +1,20 @@
+User classes and functions
+==========================
+
+The classes and functions presented below are **available to the user when  
+importing the** :py:mod:`kvp` **package** in one their scripts (or packages, 
+feel free build upon it). Please note that **array inputs are always assumed to 
+be NumPy arrays** even when not explicitly mentioned.
+
+.. currentmodule:: kvp.api
+
+Running the algorithm
+---------------------
+
+.. autoclass:: KVP()
+    :members:
+
+Utilities
+---------
+
+.. autofunction:: centralfreqs

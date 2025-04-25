@@ -1,0 +1,105 @@
+Installation
+============
+
+KVP requires its C **source files to be compiled** to properly install. This is 
+**straight forward if you work with Linux or MacOS** machines. It is also 
+relatively simple on Windows, if you have some experience with compilers. This 
+section describes the available instalation methods. It is recomended to use 
+:code:`conda` environments, since they come with :code:`pip` pre-installed.
+
+PyPI
+----
+
+The goal is to provide **pre-compiled versions** that can be installed by 
+:code:`pip install`, for as many platforms as possible.
+
+.. code-block:: bash
+    
+    pip install kvp     # In your conda environment of choice
+
+.. admonition:: Supportd platforms
+    :class: important
+    
+    Currently **supported platforms** are:
+        
+        * :code:`linux_x86_64` - Should be most Linux systems
+        * :code:`win_amd64` - Should be most Windows systems
+        * :code:`macosx_14_0_x86_64` - Older MacOS systems
+        * :code:`macosx_14_0_arm64` - Newer MacOS systems
+    
+To know if any of the supported platforms includes yours, simply try to install 
+the package. If :code:`pip` gives you the package, then it is. If it does not, 
+you may try the following section.
+
+From source
+-----------
+
+.. _repository: https://github.com/B-CSI/kvp
+
+.. _GNU: https://gcc.gnu.org/install/binaries.html
+
+.. admonition:: Source install
+    :class: note
+    
+    This installation method adds the :code:`-march=native` flag to the 
+    compilation process, which might make the low level procedures of the 
+    package marginally faster, should one actually care.
+
+Download the `repository`_ and navigate to it from the terminal. Before 
+installing, the C sources must be compiled or the package will raise an 
+exception at import time.
+
+The **provided makefiles use the GNU C compiler**, which is trivially installed 
+in both Linux and MacOS systems, if not readily available after installing the 
+operating system.
+
+For **Linux**, simply run the makefile:
+
+.. code-block:: bash
+    
+    make
+
+.. admonition:: Makefile issues
+    :class: error
+	
+	If this says "nothing to be done for target" or something similar, navigate 
+	to the :code:`kvp/src` folder and update any source file by, for example, 
+	adding and removing a whitespace. Proper makefiles should not have this 
+	issue, but this is not a proper makefile indeed.
+
+For **MacOS**, add the corresponding target so the name of the compiled binary 
+is correct for your system:
+
+.. code-block:: bash
+    
+    make mac
+
+This will create a compiled binary, i.e. a shared library, inside 
+:code:`kvp/lib/` called :code:`libkvp-*.so`, where the asterisk is a platform 
+specific code.
+
+Once the binary is successfully created, the package can be correctly installed 
+with :code:`pip` while in your :code:`conda` environment of choice:
+
+.. code-block:: bash
+    
+    pip install .
+
+For **Windows**, the process is also trivial if you happen to have the compiler 
+installed and on your system PATH. If not, you can try one of the available 
+options at the `GNU`_ website.
+
+If you have the compiler, just type:
+
+.. code-block:: bash
+    
+    make
+
+This will create the compiled binary :code:`libkvp-bill.dll` at the correct 
+location. The name is also important, it *has* to be that name.
+
+Now, within your :code:`conda` environment of choice, run :code:`pip`:
+
+.. code-block:: bash
+    
+    pip install .

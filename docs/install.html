@@ -1,0 +1,204 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Installation &mdash; Kurtosis-Value-Picker  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Changelog" href="changelog.html" />
+    <link rel="prev" title="OBS from the SAFE experiment" href="safe_signal.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #28b8d5" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Kurtosis-Value-Picker
+              <img src="_static/logo_BCSI.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Description</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">User classes and functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="results.html">Picking results</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ot_event.html">DAS earthquake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="safe_signal.html">OBS signal</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/B-CSI/kvp">Repository</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #28b8d5" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Kurtosis-Value-Picker</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Installation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/install.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
+<p>KVP requires its C <strong>source files to be compiled</strong> to properly install. This is
+<strong>straight forward if you work with Linux or MacOS</strong> machines. It is also
+relatively simple on Windows, if you have some experience with compilers. This
+section describes the available instalation methods. It is recomended to use
+<code class="code docutils literal notranslate"><span class="pre">conda</span></code> environments, since they come with <code class="code docutils literal notranslate"><span class="pre">pip</span></code> pre-installed.</p>
+<section id="pypi">
+<h2>PyPI<a class="headerlink" href="#pypi" title="Link to this heading"></a></h2>
+<p>The goal is to provide <strong>pre-compiled versions</strong> that can be installed by
+<code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code>, for as many platforms as possible.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>kvp<span class="w">     </span><span class="c1"># In your conda environment of choice</span>
+</pre></div>
+</div>
+<div class="important admonition">
+<p class="admonition-title">Supportd platforms</p>
+<p>Currently <strong>supported platforms</strong> are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">linux_x86_64</span></code> - Should be most Linux systems</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">win_amd64</span></code> - Should be most Windows systems</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">macosx_14_0_x86_64</span></code> - Older MacOS systems</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">macosx_14_0_arm64</span></code> - Newer MacOS systems</p></li>
+</ul>
+</div></blockquote>
+</div>
+<p>To know if any of the supported platforms includes yours, simply try to install
+the package. If <code class="code docutils literal notranslate"><span class="pre">pip</span></code> gives you the package, then it is. If it does not,
+you may try the following section.</p>
+</section>
+<section id="from-source">
+<h2>From source<a class="headerlink" href="#from-source" title="Link to this heading"></a></h2>
+<div class="note admonition">
+<p class="admonition-title">Source install</p>
+<p>This installation method adds the <code class="code docutils literal notranslate"><span class="pre">-march=native</span></code> flag to the
+compilation process, which might make the low level procedures of the
+package marginally faster, should one actually care.</p>
+</div>
+<p>Download the <a class="reference external" href="https://github.com/B-CSI/kvp">repository</a> and navigate to it from the terminal. Before
+installing, the C sources must be compiled or the package will raise an
+exception at import time.</p>
+<p>The <strong>provided makefiles use the GNU C compiler</strong>, which is trivially installed
+in both Linux and MacOS systems, if not readily available after installing the
+operating system.</p>
+<p>For <strong>Linux</strong>, simply run the makefile:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make
+</pre></div>
+</div>
+<div class="error admonition">
+<p class="admonition-title">Makefile issues</p>
+<blockquote>
+<div><p>If this says “nothing to be done for target” or something similar, navigate
+to the <code class="code docutils literal notranslate"><span class="pre">kvp/src</span></code> folder and update any source file by, for example,
+adding and removing a whitespace. Proper makefiles should not have this
+issue, but this is not a proper makefile indeed.</p>
+</div></blockquote>
+</div>
+<p>For <strong>MacOS</strong>, add the corresponding target so the name of the compiled binary
+is correct for your system:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>mac
+</pre></div>
+</div>
+<p>This will create a compiled binary, i.e. a shared library, inside
+<code class="code docutils literal notranslate"><span class="pre">kvp/lib/</span></code> called <code class="code docutils literal notranslate"><span class="pre">libkvp-*.so</span></code>, where the asterisk is a platform
+specific code.</p>
+<p>Once the binary is successfully created, the package can be correctly installed
+with <code class="code docutils literal notranslate"><span class="pre">pip</span></code> while in your <code class="code docutils literal notranslate"><span class="pre">conda</span></code> environment of choice:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>.
+</pre></div>
+</div>
+<p>For <strong>Windows</strong>, the process is also trivial if you happen to have the compiler
+installed and on your system PATH. If not, you can try one of the available
+options at the <a class="reference external" href="https://gcc.gnu.org/install/binaries.html">GNU</a> website.</p>
+<p>If you have the compiler, just type:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make
+</pre></div>
+</div>
+<p>This will create the compiled binary <code class="code docutils literal notranslate"><span class="pre">libkvp-bill.dll</span></code> at the correct
+location. The name is also important, it <em>has</em> to be that name.</p>
+<p>Now, within your <code class="code docutils literal notranslate"><span class="pre">conda</span></code> environment of choice, run <code class="code docutils literal notranslate"><span class="pre">pip</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>.
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="safe_signal.html" class="btn btn-neutral float-left" title="OBS from the SAFE experiment" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="changelog.html" class="btn btn-neutral float-right" title="Changelog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025 H. Latorre et al., Barcelona Center for Subsurface Imaging.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

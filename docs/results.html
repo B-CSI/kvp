@@ -1,0 +1,218 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Results containers &mdash; Kurtosis-Value-Picker  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="DAS at the Teide Observatory" href="ot_event.html" />
+    <link rel="prev" title="User classes and functions" href="user.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #28b8d5" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Kurtosis-Value-Picker
+              <img src="_static/logo_BCSI.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Description</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user.html">User classes and functions</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Picking results</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ot_event.html">DAS earthquake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="safe_signal.html">OBS signal</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/B-CSI/kvp">Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #28b8d5" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Kurtosis-Value-Picker</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Results containers</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/results.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="results-containers">
+<h1>Results containers<a class="headerlink" href="#results-containers" title="Link to this heading"></a></h1>
+<p>The classes presented below are <strong>not available directly to the user</strong> and are
+instead <strong>returned by other functions or methods</strong>.</p>
+<section id="checking-the-results">
+<h2>Checking the results<a class="headerlink" href="#checking-the-results" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="kvp.api.KVPOutput">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">KVPOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kvp_items</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wt_traces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cf_traces</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kvp/api.html#KVPOutput"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kvp.api.KVPOutput" title="Link to this definition"></a></dt>
+<dd><p>Class to store KVP outputs. It contains <code class="xref py py-class docutils literal notranslate"><span class="pre">KVPick</span></code> instances and 
+supports list-like indexing, i.e. <code class="code docutils literal notranslate"><span class="pre">output[idx]</span></code>, to access them. 
+It also supports iteration to yield picks, i.e. <code class="xref py py-func docutils literal notranslate"><span class="pre">iter()</span></code> function 
+and <code class="code docutils literal notranslate"><span class="pre">for</span> <span class="pre">pick</span> <span class="pre">in</span> <span class="pre">output:</span> <span class="pre">...</span></code> iterator syntax.</p>
+<p>If filtered or CF traces are saved after a run, they can be retrieved from 
+the corresponding methods, <a class="reference internal" href="#kvp.api.KVPOutput.wt_traces" title="kvp.api.KVPOutput.wt_traces"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wt_traces()</span></code></a> and <a class="reference internal" href="#kvp.api.KVPOutput.cf_traces" title="kvp.api.KVPOutput.cf_traces"><code class="xref py py-meth docutils literal notranslate"><span class="pre">cf_traces()</span></code></a>, 
+respectively. The returned tuples contain a series of two-tuples with the 
+data arrays and dictionaries containing sampling rate and starttime.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="kvp.api.KVPOutput.append_to_file">
+<span class="sig-name descname"><span class="pre">append_to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fout</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kvp/api.html#KVPOutput.append_to_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kvp.api.KVPOutput.append_to_file" title="Link to this definition"></a></dt>
+<dd><p>Append picks to an open file, i.e. an object returned by the 
+<code class="xref py py-func docutils literal notranslate"><span class="pre">open()</span></code> function. Output columns are <code class="code docutils literal notranslate"><span class="pre">rec_id</span></code>, onset 
+time, number of bands, lowest band, and highest band, respectively.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fout</strong> (<em>file object</em>) – Open file object</p></li>
+<li><p><strong>posix</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Flag to get onsets as POSIX time, default is 
+<code class="code docutils literal notranslate"><span class="pre">True</span></code>. If not, get time in seconds from input data start</p></li>
+<li><p><strong>isoformat</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Flag to write POSIX times as ISO datetime strings or 
+<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code> numbers, default is <code class="code docutils literal notranslate"><span class="pre">True</span></code>. Only relevant 
+if <code class="code docutils literal notranslate"><span class="pre">posix</span></code> is set to <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kvp.api.KVPOutput.wt_traces">
+<span class="sig-name descname"><span class="pre">wt_traces</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/kvp/api.html#KVPOutput.wt_traces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kvp.api.KVPOutput.wt_traces" title="Link to this definition"></a></dt>
+<dd><p>List of filtered traces, if available.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kvp.api.KVPOutput.cf_traces">
+<span class="sig-name descname"><span class="pre">cf_traces</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/kvp/api.html#KVPOutput.cf_traces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kvp.api.KVPOutput.cf_traces" title="Link to this definition"></a></dt>
+<dd><p>List of CF traces, if available.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="kvp.api.KVPOutput.picks">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">picks</span></span><a class="headerlink" href="#kvp.api.KVPOutput.picks" title="Link to this definition"></a></dt>
+<dd><p>List of picks.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kvp.picker.KVPick">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">KVPick</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">single_ptrs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bands</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kvp/picker.html#KVPick"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kvp.picker.KVPick" title="Link to this definition"></a></dt>
+<dd><p>Grouped KVP phase pick.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="kvp.picker.KVPick.onset">
+<span class="sig-name descname"><span class="pre">onset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'med'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">posix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kvp/picker.html#KVPick.onset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kvp.picker.KVPick.onset" title="Link to this definition"></a></dt>
+<dd><p>Get onset time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>method</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Method to calculate the onset, only median is 
+implemented for now (<code class="code docutils literal notranslate"><span class="pre">'med'</span></code>)</p></li>
+<li><p><strong>posix</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Flag to get onset as POSIX time, default is <code class="code docutils literal notranslate"><span class="pre">True</span></code>. 
+If not, get time in seconds from input data start</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="kvp.picker.KVPick.singlepicks">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">singlepicks</span></span><a class="headerlink" href="#kvp.picker.KVPick.singlepicks" title="Link to this definition"></a></dt>
+<dd><p>Individual singlepicks.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="kvp.picker.KVPick.nb">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nb</span></span><a class="headerlink" href="#kvp.picker.KVPick.nb" title="Link to this definition"></a></dt>
+<dd><p>Number of bands.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="kvp.picker.KVPick.centralfreqs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">centralfreqs</span></span><a class="headerlink" href="#kvp.picker.KVPick.centralfreqs" title="Link to this definition"></a></dt>
+<dd><p>Central frequencies.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="user.html" class="btn btn-neutral float-left" title="User classes and functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ot_event.html" class="btn btn-neutral float-right" title="DAS at the Teide Observatory" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025 H. Latorre et al., Barcelona Center for Subsurface Imaging.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

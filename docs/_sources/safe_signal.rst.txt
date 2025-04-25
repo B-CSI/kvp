@@ -1,0 +1,11 @@
+OBS from the SAFE experiment
+============================
+
+The script :code:`obs_uninterpreted_signal.py` at the :code:`examples` folder 
+on the repository showcases how :py:mod:`KVP` works and how can help manual 
+picking of signals.
+
+Figures
+-------
+
+.. image:: KVP_SAFE_example.png
