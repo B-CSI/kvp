@@ -1,0 +1,61 @@
+cff-version: 1.2.0
+title: KVP Multiscale kurtosis phase picking
+message: >-
+  If you use this repository or the methodology implemented
+  here, please cite the associated research article.
+type: software
+
+authors:
+  - given-names: Hugo
+    family-names: Latorre
+    orcid: https://orcid.org/0009-0003-2426-0827
+
+repository-code: https://github.com/B-CSI/kvp
+
+keywords:
+  - Time-series analysis
+  - Body waves
+  - Computational seismology
+  - Distributed Acoustic Sensing
+
+license: GPL-3.0
+date-released: 2025-04-10
+
+preferred-citation:
+  type: article
+
+  authors:
+    - given-names: Hugo
+      family-names: Latorre
+      orcid: https://orcid.org/0009-0003-2426-0827
+
+    - family-names: Ventosa
+      given-names: Sergi
+      orcid: https://orcid.org/0000-0002-2880-8453
+
+    - family-names: Ugalde
+      given-names: Arantza
+      orcid: https://orcid.org/0000-0003-2409-2002
+
+    - family-names: Villaseñor
+      given-names: Antonio
+      orcid: https://orcid.org/0000-0001-8592-4832
+
+    - family-names: Bartolomé
+      given-names: Rafael
+      orcid: https://orcid.org/0000-0002-2005-6840
+
+    - family-names: Ranero
+      given-names: César R.
+      orcid: https://orcid.org/0000-0002-5204-545X
+
+
+  title:  "KVP: a multiscale kurtosis approach for seismic phase picking Open Access"
+  journal: Geophysical Journal International
+  year: 2025
+  volume: 241
+  issue: 3
+  doi: 10.1093/gji/ggaf136
+  publisher: Oxford University Press (OUP)
+  issn: 1365-246X
+  pages: "1923-1935"
