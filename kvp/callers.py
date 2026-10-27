@@ -14,19 +14,19 @@ from kvp.lib import (t_WaveletFamily, t_RWTvar, t_Movarray,
 
 
 
-# Mexhat fixed parameter
-_OP1 = np.sqrt(2.0)
+# Fixed parameters for the wavelets
 _A0 = 2.0
 _B0 = 0.5
 _N = 10000
 
 
 
-def create_wavelet_family(octaves, voices, continuous, fs, freqmax):
+def create_wavelet_family(octaves, voices, continuous, fs, freqmax,
+                          op1, wl_id):
     '''Internal.
     '''
     
-    s0 = _OP1*fs / (2.0*np.pi*freqmax)
+    s0 = op1*fs / (2.0*np.pi*freqmax)
     Ns = octaves * voices
     
     scale = np.zeros(Ns, dtype=np.double)
@@ -56,13 +56,13 @@ def create_wavelet_family(octaves, voices, continuous, fs, freqmax):
             center_p,
             downsample_p,
             0.0,
-            _OP1,
+            op1,
             Ns
             )
     
-    lib_kvp.FillWaveletFamily(wf_struct)
+    lib_kvp.FillWaveletFamily(wf_struct, wl_id)
     
-    centralfreq = _OP1*fs / (2.0*np.pi*scale)
+    centralfreq = op1*fs / (2.0*np.pi*scale)
     
     items = \
         {
@@ -201,7 +201,7 @@ def update_jump_traces(jump_struct, cf_struct):
 
 
 def get_captures(refined_items):
-    '''I did it, and for no reason..
+    '''Internal.
     '''
     
     refined = refined_items['refined']
@@ -231,7 +231,7 @@ def get_captures(refined_items):
     del mask_ptrs
     del mask
     
-    if idx_p != grouped_items['N']: # This is expected to almost always happen
+    if idx_p != grouped_items['N']: # This is expected to always happen but who knows
         
         ALLOC = grouped_items['ALLOC']
         
@@ -410,7 +410,7 @@ def capture_py(pick_ptrs, idx_bands, nbands, refined, npicks, gaps):
 
 def allocate_capture(N_max, nbands_max):
     '''Manually allocate memory for captures. Number of singlepicks is not 
-    really a predictable parameter, so having this allows an educated guess. 
+    really a prodictable parameter, so having this allows an educated guess. 
     The performance gain could be noticeable.
     '''
     

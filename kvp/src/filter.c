@@ -35,7 +35,7 @@ void setsampling0 (unsigned int *DownSmpl, unsigned int S, int continuous, unsig
 	double da1;
 	unsigned int s, j, v, ua1;
 	
-	if (continuous) 
+	if (continuous)
 		for (s=0; s<S; s++) DownSmpl[s] = 1;
 	else {
 		da1 = s0*b0;
@@ -62,14 +62,33 @@ void MexicanHatFun_real (double *w, int *center, double dump, unsigned int Ls, d
 	}
 }
 
+void Complete_MorletFun_real (double *w, int *center, double w0, unsigned int Ls, double scale) {
+	const double ze = exp((-w0*w0)/2);
+	double k, daux, w1;
+	int u, u0;
+
+	k = 1/sqrt(sqrt(PI)*scale);
+	*center = Ls/2;
+	scale = 1/scale;
+	u0 = Ls/2;
+	for (u = -u0; u < (signed)Ls - u0; u++) {
+		daux = scale * u;
+		w1 = w0*daux;
+		daux *= daux;
+		*w++ = k*(cos(w1)-ze)*exp(-0.5*daux);
+	}
+}
+
 /* Fill wavelet family frames. */
-void FillWaveletFamily (t_WaveletFamily *pWF) {
+void FillWaveletFamily (t_WaveletFamily *pWF, int id) {
 	
 	unsigned int s;
 	
+	void (*RealWavelets[])(double *, int *, double, unsigned int, double) = {MexicanHatFun_real, Complete_MorletFun_real};
+	
 	for (s=1; s<pWF->Ns; s++) pWF->wr[s] = pWF->wr[s-1] + pWF->Ls[s-1];
 	for (s=0; s<pWF->Ns; s++) {
-		MexicanHatFun_real(pWF->wr[s], pWF->center + s, pWF->op1, pWF->Ls[s], pWF->scale[s]);
+		(*RealWavelets[id])(pWF->wr[s], pWF->center + s, pWF->op1, pWF->Ls[s], pWF->scale[s]);
 	}
 
 	pWF->Cpsi = ( (4. / 3.) * sqrt(PI));

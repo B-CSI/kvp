@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Minimal interface to S. Ventosa wavelet library. Real transform with mexhat.
+Minimal interface to S. Ventosa wavelet library. Real transform with mexhat and 
+morlet wavelets.
 """
 
 
@@ -17,18 +18,41 @@ from kvp.callers import (create_wavelet_family, get_filtered_traces,
                          update_filtered_traces)
 
 
-class MexhatFilters:
-    '''FIR filters using Ricker wavelets (mexican hat).
+
+_OP1 = np.sqrt(2.0) # Mexhat fixed parameter
+
+
+_WL_IDX = \
+    {
+     'ricker' : 0,
+     'morlet' : 1,
+     }
+
+
+
+class WaveletFilters:
+    '''FIR filters using Ricker (mexican hat) or Morlet wavelets.
     '''
     
     def __init__(self, freqmax : float, octaves : int, voices : int,
-                 downsample=True):
+                 wavelet : str, op1 : float, downsample=True):
+        
+        if wavelet not in _WL_IDX:
+            errmsg = 'invalid wavelet type, valid wavelets are ricker and ' \
+                     'morlet'
+            raise ValueError(errmsg)
+        
+        wl_id = _WL_IDX.get(str(wavelet))
+        
+        op1 = _OP1 if wl_id==0 else op1
         
         self._PARAM_ = \
             {
+            'wl_id' : wl_id,
             'freqmax' : float(freqmax),
             'octaves' : int(octaves),
             'voices' : int(voices),
+            'op1' : float(op1),
             'downsample' : bool(downsample),
             }
         
@@ -47,8 +71,8 @@ class MexhatFilters:
         
         t_ini = time()
         
-        if fs/5 < self.freqmax:
-            errmsg = 'invalid maximum frequency, must be a fifth of or ' \
+        if fs/4 < self.freqmax:
+            errmsg = 'invalid maximum frequency, must be a fourth of or ' \
                      'lower than sampling rate'
             raise ValueError(errmsg)
         
@@ -92,9 +116,11 @@ class MexhatFilters:
         octaves = self._PARAM_['octaves']
         voices = self._PARAM_['voices']
         continuous = 0 if self._PARAM_['downsample'] else 1
+        op1 = self._PARAM_['op1']
+        wl_id = self._PARAM_['wl_id']
         
         wf_items = create_wavelet_family(octaves, voices, continuous, fs,
-                                         freqmax)
+                                         freqmax, op1, wl_id)
         self._ITEMS_['wf'] = wf_items
         
         N = data.size

@@ -70,7 +70,7 @@ class t_Singlepick:
     dt_jump : ft.real64
     kv_jump : ft.real64
     grouped : ft.logical
-    pad : ft.character[7] # Explicitly doing this prevents an annoying (an useless) NumPy alignment-related warning
+    pad : ft.character[7] # Explicitly doing this prevents an annoying (and useless) NumPy alignment-related warning
 
 
 
@@ -149,6 +149,7 @@ lib_kvp.setsampling0 = \
 lib_kvp.FillWaveletFamily = \
     ft.interface(
         ft.pointer(t_WaveletFamily),
+        ft.int32,
         )
 
 lib_kvp.real_1D_wavelet_dec = \

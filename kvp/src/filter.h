@@ -26,7 +26,7 @@ unsigned int setwaveletlength0 (unsigned int *Ls, double *ps, unsigned int S, un
 void setsampling0 (unsigned int *DownSmpl, unsigned int S, int continuous, unsigned int V, unsigned int J, double b0, double a0, double s0);
 
 void MexicanHatFun_real (double *w, int *center, double dump, unsigned int Ls, double scale);
-void FillWaveletFamily (t_WaveletFamily *pWF);
+void FillWaveletFamily (t_WaveletFamily *pWF, int id);
 
 void cdotx_dd (double *y, double *x0, unsigned int N, double *w0, unsigned int L, int c, int inc);
 int real_1D_wavelet_dec (t_RWTvar *y, double *x, unsigned int N, t_WaveletFamily *pWF);

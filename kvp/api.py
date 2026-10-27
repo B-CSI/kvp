@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from io import StringIO, SEEK_END
 
 
-from kvp.filter import MexhatFilters
+from kvp.filter import WaveletFilters
 from kvp.cf import KurtosisFunctions
 from kvp.trigger import KurtosisJumps
 from kvp.picker import KurtosisPicker
@@ -18,8 +18,11 @@ from kvp.lib import KVPError
 
 
 
-UTC = timezone.utc
-TSFORMAT = '%Y-%m-%dT%H:%M:%S.%f'
+_UTC = timezone.utc
+_TSFORMAT = '%Y-%m-%dT%H:%M:%S.%f'
+
+
+W0 = 5.3364
 
 
 
@@ -47,7 +50,7 @@ class KVP:
               the minimum required duration. Users must account for this when 
               cutting their data for inputs, ideally leaving space on both 
               sides.
-            * Sampling rates must be at least five times larger than the 
+            * Sampling rates must be at least four times larger than the 
               highest central frequency, otherwise the convolving wavelet would 
               not really be a Ricker.
             
@@ -68,6 +71,10 @@ class KVP:
     :type mingap: :py:class:`float`
     :param nbands: Required number of triggered bands to preserve picks
     :type nbands: :py:class:`int`
+    :param wavelet: Wavelet type, either ricker or morlet
+    :type wavelet: :py:class:`str`, default is :code:`ricker`
+    :param w0: Morlet wave parameter
+    :type w0: :py:class:`float`, default is :code:`5.3364`
     :param downsample: Flag to downsample lower scales, default is :code:`True`
     :type downsample: :py:class:`bool`, optional
     :param N_max: Maximum number of expected possible grouped picks, default is 
@@ -84,6 +91,8 @@ class KVP:
                  jump: float,
                  mingap : float,
                  nbands : int,
+                 wavelet='ricker',
+                 w0=W0, # Only relevant if wavelet is morlet
                  downsample=True,
                  N_max=1000000,
                  ):
@@ -103,9 +112,12 @@ class KVP:
             'mingap' : mingap,
             'nbands' : nbands,
             'downsample' : downsample,
+            'wavelet' : wavelet,
+            'w0' : w0,
             }
         
-        filt = MexhatFilters(freqmax, octaves, voices, downsample)
+        filt = WaveletFilters(freqmax, octaves, voices,
+                              wavelet, w0, downsample)
         cf = KurtosisFunctions(cf_cycles)
         trig = KurtosisJumps(jmp_cycles)
         pick = KurtosisPicker(nbands)
@@ -129,6 +141,13 @@ class KVP:
             'min_duration' : min_duration,
             'n_runs' : 0,
             }
+    
+    @classmethod
+    def whale_note_A(cls, **kwargs):
+        '''Fine-tuned parameters for whale note A detection.
+        '''
+        
+        return cls(**kwargs)
     
     def obspy(self, trace, **kwargs):
         '''Run the picking algorithm for an input ObsPy 
@@ -184,7 +203,7 @@ class KVP:
         input_duration = data.size / fs
         
         if input_duration < self._UTIL_['min_duration']:
-            errmsg = 'input data segment is too short'
+            errmsg = 'input data segment for KVP is too short'
             raise KVPError(errmsg)
         
         filt.calculate(data, fs)
@@ -321,8 +340,8 @@ class KVPOutput:
             fh = pick.centralfreqs[-1]
             
             if posix and isoformat:
-                ons = datetime.fromtimestamp(ons, UTC)
-                ons = ons.strftime(TSFORMAT)
+                ons = datetime.fromtimestamp(ons, _UTC)
+                ons = ons.strftime(_TSFORMAT)
             
             buff_obj.write(f'{rec_id}\t{ons}\t{nb}\t{fl:.2f}\t{fh:.2f}\n')
         
@@ -384,5 +403,5 @@ def centralfreqs(freqmax, octaves, voices):
     fc = tuple(round(freqmax/2**(s/voices),2) for s in range(octaves*voices))
     
     return fc
-    
+
     
